@@ -7,10 +7,10 @@ from contextlib import redirect_stdout
 from cogs.utils.checks import hastebin
 import io
 
-'''Module for an embeded python interpreter. More or less the same as the debugger module but with embeds.'''
+"""Module for an embeded python interpreter. More or less the same as the debugger module but with embeds."""
 
 
-class EmbedShell():
+class EmbedShell:
     def __init__(self, bot):
         self.bot = bot
         self.repl_sessions = {}
@@ -18,23 +18,23 @@ class EmbedShell():
 
     def cleanup_code(self, content):
         """Automatically removes code blocks from the code."""
-        if content.startswith('```') and content.endswith('```'):
-            return '\n'.join(content.split('\n')[1:-1])
+        if content.startswith("```") and content.endswith("```"):
+            return "\n".join(content.split("\n")[1:-1])
 
-        return content.strip('` \n')
+        return content.strip("` \n")
 
     def get_syntax_error(self, err):
         """Returns SyntaxError formatted for repl reply."""
-        return '```py\n{0.text}{1:>{0.offset}}\n{2}: {0}```'.format(
-            err,
-            '^',
-            type(err).__name__)
+        return "```py\n{0.text}{1:>{0.offset}}\n{2}: {0}```".format(
+            err, "^", type(err).__name__
+        )
 
-    @commands.group(name='shell',
-                    aliases=['ipython', 'repl',
-                             'longexec', 'core', 'overkill'],
-                    pass_context=True,
-                    invoke_without_command=True)
+    @commands.group(
+        name="shell",
+        aliases=["ipython", "repl", "longexec", "core", "overkill"],
+        pass_context=True,
+        invoke_without_command=True,
+    )
     async def repl(self, ctx, *, name: str = None):
         """Head on impact with an interactive python shell."""
         # TODO Minimize local variables
@@ -44,28 +44,32 @@ class EmbedShell():
 
         embed = discord.Embed(
             description="_Enter code to execute or evaluate. "
-                        "`exit()` or `quit` to exit._")
+            "`exit()` or `quit` to exit._"
+        )
 
         embed.set_author(
             name="Interactive Python Shell",
             icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb"
-                     "/c/c3/Python-logo-notext.svg/1024px-Python-logo-notext.svg.png")
+            "/c/c3/Python-logo-notext.svg/1024px-Python-logo-notext.svg.png",
+        )
 
-        embed.set_footer(text="Based on RDanny's repl command by Danny. Embed shell by eye-sigil.")
+        embed.set_footer(
+            text="Based on RDanny's repl command by Danny. Embed shell by eye-sigil."
+        )
         if name is not None:
             embed.title = name.strip(" ")
 
         history = collections.OrderedDict()
 
         variables = {
-            'ctx': ctx,
-            'bot': self.bot,
-            'message': ctx.message,
-            'guild': ctx.message.guild,
-            'channel': ctx.message.channel,
-            'author': ctx.message.author,
-            'discord': discord,
-            '_': None
+            "ctx": ctx,
+            "bot": self.bot,
+            "message": ctx.message,
+            "guild": ctx.message.guild,
+            "channel": ctx.message.channel,
+            "author": ctx.message.author,
+            "discord": discord,
+            "_": None,
         }
 
         variables.update(globals())
@@ -74,8 +78,8 @@ class EmbedShell():
 
             error_embed = discord.Embed(
                 color=15746887,
-                description="**Error**: "
-                            "_Shell is already running in channel._")
+                description="**Error**: " "_Shell is already running in channel._",
+            )
             await ctx.send(embed=error_embed)
             return
 
@@ -85,8 +89,12 @@ class EmbedShell():
         self.repl_embeds[shell] = embed
 
         while True:
-            response = await self.bot.wait_for('message',
-                check=lambda m: m.content.startswith('`') and m.author == ctx.message.author and m.channel == ctx.message.channel)
+            response = await self.bot.wait_for(
+                "message",
+                check=lambda m: m.content.startswith("`")
+                and m.author == ctx.message.author
+                and m.channel == ctx.message.channel,
+            )
 
             cleaned = self.cleanup_code(response.content)
             shell = self.repl_sessions[session]
@@ -111,31 +119,32 @@ class EmbedShell():
             if len(self.repl_embeds[shell].fields) >= 7:
                 self.repl_embeds[shell].remove_field(0)
 
-            if cleaned in ('quit', 'exit', 'exit()'):
+            if cleaned in ("quit", "exit", "exit()"):
                 self.repl_embeds[shell].color = 16426522
 
                 if self.repl_embeds[shell].title is not discord.Embed.Empty:
                     history_string = "History for {}\n\n\n".format(
-                        self.repl_embeds[shell].title)
+                        self.repl_embeds[shell].title
+                    )
                 else:
                     history_string = "History for latest session\n\n\n"
 
                 for item in history.keys():
-                    history_string += ">>> {}\n{}\n\n".format(
-                        item,
-                        history[item])
+                    history_string += ">>> {}\n{}\n\n".format(item, history[item])
 
                 haste_url = await hastebin(str(history_string), self.bot.session)
 
                 self.repl_embeds[shell].add_field(
-                            name="`>>> {}`".format(cleaned),
-                            value="[Exited. History for latest session: "
-                                  "View on Hastebin.]({})".format(
-                                haste_url),
-                            inline=False)
+                    name="`>>> {}`".format(cleaned),
+                    value="[Exited. History for latest session: "
+                    "View on Hastebin.]({})".format(haste_url),
+                    inline=False,
+                )
 
                 try:
-                    await self.repl_sessions[session].edit(embed=self.repl_embeds[shell])
+                    await self.repl_sessions[session].edit(
+                        embed=self.repl_embeds[shell]
+                    )
                 except:
                     pass
 
@@ -144,10 +153,10 @@ class EmbedShell():
                 return
 
             executor = exec
-            if cleaned.count('\n') == 0:
+            if cleaned.count("\n") == 0:
                 # single statement, potentially 'eval'
                 try:
-                    code = compile(cleaned, '<repl session>', 'eval')
+                    code = compile(cleaned, "<repl session>", "eval")
                 except SyntaxError:
                     pass
                 else:
@@ -155,7 +164,7 @@ class EmbedShell():
 
             if executor is exec:
                 try:
-                    code = compile(cleaned, '<repl session>', 'exec')
+                    code = compile(cleaned, "<repl session>", "exec")
                 except SyntaxError as err:
                     self.repl_embeds[shell].color = 15746887
 
@@ -169,17 +178,18 @@ class EmbedShell():
                         haste_url = await hastebin(str(return_msg), self.bot.session)
 
                     self.repl_embeds[shell].add_field(
-                        name="`>>> {}`".format(cleaned),
-                        value=return_msg,
-                        inline=False)
+                        name="`>>> {}`".format(cleaned), value=return_msg, inline=False
+                    )
 
                 try:
-                    await self.repl_sessions[session].edit(embed=self.repl_embeds[shell])
+                    await self.repl_sessions[session].edit(
+                        embed=self.repl_embeds[shell]
+                    )
                 except:
                     pass
                     continue
 
-            variables['message'] = response
+            variables["message"] = response
 
             fmt = None
             stdout = io.StringIO()
@@ -192,22 +202,18 @@ class EmbedShell():
             except Exception as err:
                 self.repl_embeds[shell].color = 15746887
                 value = stdout.getvalue()
-                fmt = '```py\n{}{}\n```'.format(
-                    value,
-                    traceback.format_exc())
+                fmt = "```py\n{}{}\n```".format(value, traceback.format_exc())
             else:
                 self.repl_embeds[shell].color = 4437377
 
                 value = stdout.getvalue()
 
                 if result is not None:
-                    fmt = '```py\n{}{}\n```'.format(
-                        value,
-                        result)
+                    fmt = "```py\n{}{}\n```".format(value, result)
 
-                    variables['_'] = result
+                    variables["_"] = result
                 elif value:
-                    fmt = '```py\n{}\n```'.format(value)
+                    fmt = "```py\n{}\n```".format(value)
 
             history[cleaned] = fmt
 
@@ -221,25 +227,31 @@ class EmbedShell():
                         self.repl_embeds[shell].add_field(
                             name="`>>> {}`".format(cleaned),
                             value="[Content too big to be printed. "
-                                  "Hosted on Hastebin.]({})".format(
-                                haste_url),
-                            inline=False)
+                            "Hosted on Hastebin.]({})".format(haste_url),
+                            inline=False,
+                        )
 
-                        await self.repl_sessions[session].edit(embed=self.repl_embeds[shell])
+                        await self.repl_sessions[session].edit(
+                            embed=self.repl_embeds[shell]
+                        )
                     else:
                         self.repl_embeds[shell].add_field(
-                            name="`>>> {}`".format(cleaned),
-                            value=fmt,
-                            inline=False)
+                            name="`>>> {}`".format(cleaned), value=fmt, inline=False
+                        )
 
-                        await self.repl_sessions[session].edit(embed=self.repl_embeds[shell])
+                        await self.repl_sessions[session].edit(
+                            embed=self.repl_embeds[shell]
+                        )
                 else:
                     self.repl_embeds[shell].add_field(
                         name="`>>> {}`".format(cleaned),
                         value="`Empty response, assumed successful.`",
-                        inline=False)
+                        inline=False,
+                    )
 
-                    await self.repl_sessions[session].edit(embed=self.repl_embeds[shell])
+                    await self.repl_sessions[session].edit(
+                        embed=self.repl_embeds[shell]
+                    )
 
             except discord.Forbidden:
                 pass
@@ -247,15 +259,17 @@ class EmbedShell():
             except discord.HTTPException as err:
                 try:
                     error_embed = discord.Embed(
-                        color=15746887,
-                        description='**Error**: _{}_'.format(err))
+                        color=15746887, description="**Error**: _{}_".format(err)
+                    )
                     await ctx.send(embed=error_embed)
                 except:
                     pass
 
-    @repl.command(name='jump',
-                  aliases=['hop', 'pull', 'recenter', 'whereditgo'],
-                  pass_context=True)
+    @repl.command(
+        name="jump",
+        aliases=["hop", "pull", "recenter", "whereditgo"],
+        pass_context=True,
+    )
     async def _repljump(self, ctx):
         """Brings the shell back down so you can see it again."""
 
@@ -265,7 +279,8 @@ class EmbedShell():
             try:
                 error_embed = discord.Embed(
                     color=15746887,
-                    description="**Error**: _No shell running in channel._")
+                    description="**Error**: _No shell running in channel._",
+                )
                 await ctx.send(embed=error_embed)
             except:
                 pass
@@ -289,10 +304,11 @@ class EmbedShell():
         del self.repl_embeds[shell]
         self.repl_embeds[new_shell] = embed
 
-    @repl.command(name='clear',
-                  aliases=['clean', 'purge', 'cleanup',
-                           'ohfuckme', 'deletthis'],
-                  pass_context=True)
+    @repl.command(
+        name="clear",
+        aliases=["clean", "purge", "cleanup", "ohfuckme", "deletthis"],
+        pass_context=True,
+    )
     async def _replclear(self, ctx):
         """Clears the fields of the shell and resets the color."""
 
@@ -302,7 +318,8 @@ class EmbedShell():
             try:
                 error_embed = discord.Embed(
                     color=15746887,
-                    description="**Error**: _No shell running in channel._")
+                    description="**Error**: _No shell running in channel._",
+                )
                 await ctx.send(embed=error_embed)
             except:
                 pass

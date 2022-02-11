@@ -5,6 +5,7 @@ import hashlib
 from cogs.utils.config import write_config_value
 from discord.ext import commands
 
+
 class Track:
     def __init__(self, bot):
         self.bot = bot
@@ -18,36 +19,67 @@ class Track:
         """Toggle light tracking of data."""
         self.bot.track = not self.bot.track
         write_config_value("config", "track", self.bot.track)
-        await ctx.send(self.bot.bot_prefix + "Successfully set tracking to {}.".format(self.bot.track))
+        await ctx.send(
+            self.bot.bot_prefix
+            + "Successfully set tracking to {}.".format(self.bot.track)
+        )
 
     @commands.command()
     async def complain(self, ctx, *, message):
         """Send a complaint to the bot developers. We can't respond to these, so please don't ask support questions with this."""
-        async with self.bot.session.post(self.url + "/complaint", data={"complaint": message}) as resp:
+        async with self.bot.session.post(
+            self.url + "/complaint", data={"complaint": message}
+        ) as resp:
             pass
         await ctx.send(self.bot.bot_prefix + "Successfully sent a complaint.")
 
     async def register_command(self, ctx):
         if self.bot.track:
-            async with self.bot.session.post(self.url + "/command", data={"command_name": ctx.command.name, "guild_id": str(ctx.guild.id) if ctx.guild else str(ctx.channel.recipient.id), "guild_name": ctx.guild.name}) as resp:
+            async with self.bot.session.post(
+                self.url + "/command",
+                data={
+                    "command_name": ctx.command.name,
+                    "guild_id": str(ctx.guild.id)
+                    if ctx.guild
+                    else str(ctx.channel.recipient.id),
+                    "guild_name": ctx.guild.name,
+                },
+            ) as resp:
                 pass
 
     async def heartbeat(self):
         await self.bot.wait_until_ready()
         while True:
             if self.bot.track:
-                async with self.bot.session.post(self.url + "/ping", data={"user_hash": hashlib.sha256(str(self.bot.user.id).encode()).hexdigest()}) as resp:
+                async with self.bot.session.post(
+                    self.url + "/ping",
+                    data={
+                        "user_hash": hashlib.sha256(
+                            str(self.bot.user.id).encode()
+                        ).hexdigest()
+                    },
+                ) as resp:
                     pass
             await asyncio.sleep(60)
 
     async def on_error(self, error):
         if self.bot.track:
-            async with self.bot.session.post(self.url + "/error", data={"error_type": type(error).__name__, "error_message": str(error)}) as resp:
+            async with self.bot.session.post(
+                self.url + "/error",
+                data={"error_type": type(error).__name__, "error_message": str(error)},
+            ) as resp:
                 pass
 
     async def on_command_error(self, ctx, error):
         if self.bot.track:
-            async with self.bot.session.post(self.url + "/commanderror", data={"error_type": type(error).__name__, "error_message": str(error), "command_name": ctx.command.name}) as resp:
+            async with self.bot.session.post(
+                self.url + "/commanderror",
+                data={
+                    "error_type": type(error).__name__,
+                    "error_message": str(error),
+                    "command_name": ctx.command.name,
+                },
+            ) as resp:
                 pass
 
 

@@ -4,6 +4,8 @@
 
 ### I, [SubhoBoy](https://github.com/SubhoBoy) have forked this repository with the aim of maintaining it after the original creator decided to abandon it. All credit for the original code goes to [appu1232](https://github.com/appu1232).
 
+### Below follows the original README.
+
 ### This bot is no longer being developed. Any breaking changes will not be fixed. Discord has become more strict about selfbot use and will ban without warning, as such, I have abandoned this project.
 
 ### [**Install guide + list of all commands.**](https://github.com/appu1232/Discord-Selfbot/wiki)
@@ -20,7 +22,7 @@ Takes less than 2 minutes to set up. Has various commands and utilities includin
 - Cycle through avatars automatically.
 - Save image/gif/webm dumps (urls or attachments) in channels quickly to your computer (checks for duplicates as well).
 - Detailed image/gif source finder using sauce.nao
-- Add custom commands/reactions. The commands get saved to ``commands.json`` which has some sample commands added to start with. Can be used as macros for other commands as well.
+- Add custom commands/reactions. The commands get saved to `commands.json` which has some sample commands added to start with. Can be used as macros for other commands as well.
 - Custom embeds.
 - Todo list with notifications and a timer (repeatable) as well as ability to send a message to a channel when the timer goes off.
 - Smart MyAnimeList search of anime and manga/LNs using google custom search (and if that fails, using myanimelist's api for search)
@@ -28,7 +30,7 @@ Takes less than 2 minutes to set up. Has various commands and utilities includin
 - Get detailed information about a server and all of its members.
 - Purge the last n messages you sent in a channel.
 - Simple calculator.
-- Quick commands so you can post pointless stuff as fast as possible like ``lenny``, ``shrug``, ``flip``, ``unflip``, and ``comeatmebro``
+- Quick commands so you can post pointless stuff as fast as possible like `lenny`, `shrug`, `flip`, `unflip`, and `comeatmebro`
 - Meme commands like spacing text, converting text to regional indicator emojis, mass reacting to messages, and converting text to ascii art.
 - Python interpreter. Modeled off of RoboDanny's ?debug command. Does both exec() and eval(). Ability to save and load scripts.
 - Various other misc commands like spoiler tagging text (encrypts the text), creating strawpolls, embeding text, server/user info commands, and more.

@@ -7,11 +7,10 @@ from cogs.utils.checks import embed_perms
 
 
 class FriendCodes:
-
     def __init__(self, bot):
         self.bot = bot
         try:
-            with open("settings/fc.json", encoding='utf-8') as fc:
+            with open("settings/fc.json", encoding="utf-8") as fc:
                 self.data = json.load(fc)
         except FileNotFoundError:
             self.data = {}
@@ -34,7 +33,9 @@ class FriendCodes:
         fc = CaseInsensitiveDict(dataIO.load_json("settings/fc.json"))
         if friend_code == "all":
             if not fc:
-                return await ctx.send(self.bot.bot_prefix + "You have no friend codes to show!")
+                return await ctx.send(
+                    self.bot.bot_prefix + "You have no friend codes to show!"
+                )
             if embed_perms(ctx.message):
                 embed = discord.Embed()
                 for code in fc:
@@ -47,7 +48,10 @@ class FriendCodes:
                 return await ctx.send(message)
         else:
             if not friend_code in fc:
-                return await ctx.send(self.bot.bot_prefix + "You don't have a value set for that friend code!")
+                return await ctx.send(
+                    self.bot.bot_prefix
+                    + "You don't have a value set for that friend code!"
+                )
             if embed_perms(ctx.message):
                 embed = discord.Embed()
                 embed.add_field(name=friend_code, value=fc[friend_code])
